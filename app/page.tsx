@@ -9,14 +9,17 @@ export default function Home() {
   const sectionsRef = useRef<(HTMLElement | null)[]>([])
 
   useEffect(() => {
+    console.log("[v0] Setting theme:", isDark ? "dark" : "light")
     document.documentElement.classList.toggle("dark", isDark)
   }, [isDark])
 
   useEffect(() => {
+    console.log("[v0] Setting up IntersectionObserver")
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            console.log("[v0] Section intersecting:", entry.target.id)
             entry.target.classList.add("animate-fade-in-up")
             setActiveSection(entry.target.id)
           }
@@ -25,26 +28,124 @@ export default function Home() {
       { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
     )
 
-    sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section)
+    console.log("[v0] Observing sections:", sectionsRef.current.length)
+    sectionsRef.current.forEach((section, index) => {
+      if (section) {
+        console.log("[v0] Observing section:", section.id, "at index:", index)
+        observer.observe(section)
+      }
     })
 
-    return () => observer.disconnect()
+    return () => {
+      console.log("[v0] Disconnecting observer")
+      observer.disconnect()
+    }
   }, [])
 
   const toggleTheme = () => {
+    console.log("[v0] Toggling theme from:", isDark ? "dark" : "light")
     setIsDark(!isDark)
+  }
+
+  const downloadCV = () => {
+    console.log("[v0] Downloading CV")
+    try {
+      // Create a temporary link element to trigger download
+      const link = document.createElement("a")
+      link.href = "/cv/Abhijit_Fule_CV.pdf" // You'll need to add your CV file to public/cv/
+      link.download = "Abhijit_Fule_CV.pdf"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      console.log("[v0] CV download triggered successfully")
+    } catch (error) {
+      console.error("[v0] Error downloading CV:", error)
+    }
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
+      <div className="fixed top-6 right-6 z-20 flex items-center gap-3">
+        <button
+          onClick={downloadCV}
+          className="group p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:border-muted-foreground/50 hover:scale-110 hover:shadow-lg transition-all duration-300"
+          aria-label="Download CV"
+        >
+          <svg
+            className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        </button>
+
+        <Link
+          href="https://www.linkedin.com/in/abhijit-fule"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:border-muted-foreground/50 hover:scale-110 hover:shadow-lg transition-all duration-300"
+          aria-label="LinkedIn Profile"
+        >
+          <svg
+            className="w-5 h-5 text-muted-foreground group-hover:text-[#0077B5] transition-colors duration-300"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+          </svg>
+        </Link>
+
+        <Link
+          href="https://github.com/fuleabhijit"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:border-muted-foreground/50 hover:scale-110 hover:shadow-lg transition-all duration-300"
+          aria-label="GitHub Profile"
+        >
+          <svg
+            className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors duration-300"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+          </svg>
+        </Link>
+
+        <Link
+          href="mailto:fuleabhijit4@gmail.com"
+          className="group p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:border-muted-foreground/50 hover:scale-110 hover:shadow-lg transition-all duration-300"
+          aria-label="Email"
+        >
+          <svg
+            className="w-5 h-5 text-muted-foreground group-hover:text-red-500 transition-colors duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+        </Link>
+      </div>
+
       <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
         <div className="flex flex-col gap-4">
           {["intro", "work", "projects", "linkedin", "connect"].map((section) => (
             <button
               key={section}
               onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
-              className={`w-2 h-8 rounded-full transition-all duration-500 ${
+              className={`w-2 h-8 rounded-full transition-all duration-500 hover:scale-110 ${
                 activeSection === section ? "bg-foreground" : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
               }`}
               aria-label={`Navigate to ${section}`}
@@ -62,19 +163,36 @@ export default function Home() {
           <div className="grid lg:grid-cols-5 gap-12 sm:gap-16 w-full">
             <div className="lg:col-span-3 space-y-6 sm:space-y-8">
               <div className="space-y-3 sm:space-y-2">
-                <div className="text-sm text-muted-foreground font-mono tracking-wider">PORTFOLIO / 2025</div>
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight">
+                <div className="text-sm text-muted-foreground font-mono tracking-wider animate-pulse">
+                  PORTFOLIO / 2025
+                </div>
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight hover:tracking-wide transition-all duration-700">
                   Abhijit
                   <br />
-                  <span className="text-muted-foreground">Fule</span>
+                  <span className="text-muted-foreground hover:text-foreground transition-colors duration-500">
+                    Fule
+                  </span>
                 </h1>
               </div>
 
               <div className="space-y-6 max-w-md">
-                <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
+                <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed hover:text-foreground transition-colors duration-300">
                   Data Analyst with hands-on experience in
-                  <span className="text-foreground"> Python</span>,<span className="text-foreground"> SQL</span>, and
-                  <span className="text-foreground"> data visualization</span>.
+                  <span className="text-foreground hover:scale-105 inline-block transition-transform duration-300">
+                    {" "}
+                    Python
+                  </span>
+                  ,
+                  <span className="text-foreground hover:scale-105 inline-block transition-transform duration-300">
+                    {" "}
+                    SQL
+                  </span>
+                  , and
+                  <span className="text-foreground hover:scale-105 inline-block transition-transform duration-300">
+                    {" "}
+                    data visualization
+                  </span>
+                  .
                 </p>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
@@ -103,7 +221,7 @@ export default function Home() {
                   {["Python", "SQL", "Power BI", "MongoDB", "Pandas", "NumPy"].map((skill) => (
                     <span
                       key={skill}
-                      className="px-3 py-1 text-xs border border-border rounded-full hover:border-muted-foreground/50 transition-colors duration-300"
+                      className="px-3 py-1 text-xs border border-border rounded-full hover:border-muted-foreground/50 hover:scale-105 hover:shadow-md transition-all duration-300"
                     >
                       {skill}
                     </span>
@@ -121,7 +239,9 @@ export default function Home() {
         >
           <div className="space-y-12 sm:space-y-16">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <h2 className="text-3xl sm:text-4xl font-light">Experience & Education</h2>
+              <h2 className="text-3xl sm:text-4xl font-light hover:tracking-wide transition-all duration-500">
+                Experience & Education
+              </h2>
               <div className="text-sm text-muted-foreground font-mono">2023 — Present</div>
             </div>
 
@@ -154,27 +274,33 @@ export default function Home() {
               ].map((job, index) => (
                 <div
                   key={index}
-                  className="group grid lg:grid-cols-12 gap-4 sm:gap-8 py-6 sm:py-8 border-b border-border/50 hover:border-border transition-colors duration-500"
+                  className="group grid lg:grid-cols-12 gap-4 sm:gap-8 py-6 sm:py-8 border-b border-border/50 hover:border-border hover:bg-muted/10 hover:scale-[1.02] transition-all duration-500 rounded-lg px-4"
                 >
                   <div className="lg:col-span-2">
-                    <div className="text-xl sm:text-2xl font-light text-muted-foreground group-hover:text-foreground transition-colors duration-500">
+                    <div className="text-xl sm:text-2xl font-light text-muted-foreground group-hover:text-foreground group-hover:scale-110 transition-all duration-500">
                       {job.year}
                     </div>
                   </div>
 
                   <div className="lg:col-span-6 space-y-3">
                     <div>
-                      <h3 className="text-lg sm:text-xl font-medium">{job.role}</h3>
-                      <div className="text-muted-foreground">{job.company}</div>
+                      <h3 className="text-lg sm:text-xl font-medium group-hover:text-blue-400 transition-colors duration-300">
+                        {job.role}
+                      </h3>
+                      <div className="text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                        {job.company}
+                      </div>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed max-w-lg">{job.description}</p>
+                    <p className="text-muted-foreground leading-relaxed max-w-lg group-hover:text-foreground transition-colors duration-300">
+                      {job.description}
+                    </p>
                   </div>
 
                   <div className="lg:col-span-4 flex flex-wrap gap-2 lg:justify-end mt-2 lg:mt-0">
                     {job.tech.map((tech) => (
                       <span
                         key={tech}
-                        className="px-2 py-1 text-xs text-muted-foreground rounded group-hover:border-muted-foreground/50 transition-colors duration-500"
+                        className="px-2 py-1 text-xs text-muted-foreground rounded transition-colors duration-300"
                       >
                         {tech}
                       </span>
@@ -192,7 +318,9 @@ export default function Home() {
           className="min-h-screen py-20 sm:py-32 opacity-0"
         >
           <div className="space-y-12 sm:space-y-16">
-            <h2 className="text-3xl sm:text-4xl font-light">Featured Projects</h2>
+            <h2 className="text-3xl sm:text-4xl font-light hover:tracking-wide transition-all duration-500">
+              Featured Projects
+            </h2>
 
             <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
               {[
@@ -202,6 +330,7 @@ export default function Home() {
                     "Developed a multilingual dashboard that delivers real-time crop disease diagnoses and market prices using ETL workflows and voice/image inputs for rural accessibility.",
                   date: "2024",
                   tech: "Python, ETL, Voice Recognition",
+                  github: "https://github.com/fuleabhijit/AgriMedic-AI",
                 },
                 {
                   title: "Multi-Agent Stock Analyzer",
@@ -209,6 +338,7 @@ export default function Home() {
                     "Created a modular tool that aggregates stock data and sentiment analysis into automated dashboards for efficient stock research.",
                   date: "2024",
                   tech: "Python, Data Analysis, Dashboards",
+                  github: "https://github.com/fuleabhijit/level-hack",
                 },
                 {
                   title: "Data Analytics Dashboard",
@@ -216,6 +346,7 @@ export default function Home() {
                     "Built real-time analytics dashboards and ETL pipelines during Level SuperMind Hackathon, leading team to finals.",
                   date: "2024",
                   tech: "ETL, Real-time Analytics",
+                  github: "https://github.com/fuleabhijit/level-hack",
                 },
                 {
                   title: "MongoDB Data Integration",
@@ -223,40 +354,57 @@ export default function Home() {
                     "Streamlined data integration processes and improved data accuracy through automated scripts and reporting systems.",
                   date: "2024",
                   tech: "MongoDB, Python, SQL",
+                  github: "#",
                 },
               ].map((project, index) => (
                 <article
                   key={index}
-                  className="group p-6 sm:p-8 border border-border rounded-lg hover:border-muted-foreground/50 transition-all duration-500 hover:shadow-lg cursor-pointer"
+                  className="group p-6 sm:p-8 border border-border rounded-lg hover:border-muted-foreground/50 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 cursor-pointer bg-background hover:bg-muted/5"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-                      <span>{project.date}</span>
-                      <span>{project.tech}</span>
+                      <span className="group-hover:text-foreground transition-colors duration-300">{project.date}</span>
+                      <span className="group-hover:text-foreground transition-colors duration-300">{project.tech}</span>
                     </div>
 
-                    <h3 className="text-lg sm:text-xl font-medium group-hover:text-muted-foreground transition-colors duration-300">
+                    <h3 className="text-lg sm:text-xl font-medium group-hover:text-blue-400 transition-colors duration-300">
                       {project.title}
                     </h3>
 
-                    <p className="text-muted-foreground leading-relaxed">{project.excerpt}</p>
+                    <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">
+                      {project.excerpt}
+                    </p>
 
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                      <span>View project</span>
+                    <Link
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>View project</span>
+                        <svg
+                          className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </div>
                       <svg
-                        className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
-                        fill="none"
-                        stroke="currentColor"
+                        className="w-5 h-5 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
+                        fill="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
+                        <path d="M12 0a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1zm7-4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1zm7-4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1zm7-4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
                       </svg>
-                    </div>
+                    </Link>
                   </div>
                 </article>
               ))}
@@ -271,12 +419,14 @@ export default function Home() {
         >
           <div className="space-y-12 sm:space-y-16">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <h2 className="text-3xl sm:text-4xl font-light">LinkedIn Featured</h2>
+              <h2 className="text-3xl sm:text-4xl font-light hover:tracking-wide transition-all duration-500">
+                LinkedIn Featured
+              </h2>
               <Link
                 href="https://www.linkedin.com/in/abhijit-fule"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
+                className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:scale-105 transition-all duration-300"
               >
                 <span>View all posts</span>
                 <svg
@@ -296,13 +446,13 @@ export default function Home() {
             </div>
 
             <div className="space-y-8">
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl hover:text-foreground transition-colors duration-300">
                 Sharing insights about data analytics, career growth, and technology trends. Here are some of my recent
                 featured posts from LinkedIn.
               </p>
 
               <div className="grid gap-8 lg:grid-cols-2">
-                <div className="border border-border rounded-lg p-4 bg-muted/20 overflow-hidden">
+                <div className="border border-border rounded-lg p-4 bg-muted/20 overflow-hidden hover:border-muted-foreground/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-500">
                   <iframe
                     src="https://www.linkedin.com/embed/feed/update/urn:li:share:7356254955336273920?collapsed=1"
                     height="669"
@@ -314,7 +464,7 @@ export default function Home() {
                   />
                 </div>
 
-                <div className="border border-border rounded-lg p-4 bg-muted/20 overflow-hidden">
+                <div className="border border-border rounded-lg p-4 bg-muted/20 overflow-hidden hover:border-muted-foreground/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-500">
                   <iframe
                     src="https://www.linkedin.com/embed/feed/update/urn:li:share:7356908990716350465?collapsed=1"
                     height="669"
@@ -332,7 +482,7 @@ export default function Home() {
                   href="https://www.linkedin.com/in/abhijit-fule"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#0077B5] text-white rounded-lg hover:bg-[#005885] transition-colors duration-300"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#0077B5] text-white rounded-lg hover:bg-[#005885] hover:scale-105 hover:shadow-lg transition-all duration-300"
                 >
                   <span>View More Posts on LinkedIn</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,10 +502,12 @@ export default function Home() {
         <section id="connect" ref={(el) => (sectionsRef.current[4] = el)} className="py-20 sm:py-32 opacity-0">
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">
             <div className="space-y-6 sm:space-y-8">
-              <h2 className="text-3xl sm:text-4xl font-light">Let's Connect</h2>
+              <h2 className="text-3xl sm:text-4xl font-light hover:tracking-wide transition-all duration-500">
+                Let's Connect
+              </h2>
 
               <div className="space-y-6">
-                <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
+                <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed hover:text-foreground transition-colors duration-300">
                   Always interested in new opportunities, collaborations, and conversations about data analytics and
                   technology.
                 </p>
@@ -363,7 +515,7 @@ export default function Home() {
                 <div className="space-y-4">
                   <Link
                     href="mailto:fuleabhijit4@gmail.com"
-                    className="group flex items-center gap-3 text-foreground hover:text-muted-foreground transition-colors duration-300"
+                    className="group flex items-center gap-3 text-foreground hover:text-muted-foreground hover:scale-105 transition-all duration-300"
                   >
                     <span className="text-base sm:text-lg">fuleabhijit4@gmail.com</span>
                     <svg
@@ -378,7 +530,7 @@ export default function Home() {
 
                   <Link
                     href="tel:+919322950728"
-                    className="group flex items-center gap-3 text-foreground hover:text-muted-foreground transition-colors duration-300"
+                    className="group flex items-center gap-3 text-foreground hover:text-muted-foreground hover:scale-105 transition-all duration-300"
                   >
                     <span className="text-base sm:text-lg">+91 93229 50728</span>
                     <svg
@@ -412,7 +564,7 @@ export default function Home() {
                   <Link
                     key={social.name}
                     href={social.url}
-                    className="group p-4 border border-border rounded-lg hover:border-muted-foreground/50 transition-all duration-300 hover:shadow-sm"
+                    className="group p-4 border border-border rounded-lg hover:border-muted-foreground/50 hover:shadow-lg hover:scale-105 transition-all duration-300"
                   >
                     <div className="space-y-2">
                       <div className="text-foreground group-hover:text-muted-foreground transition-colors duration-300">
@@ -453,13 +605,13 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div className="space-y-2">
               <div className="text-sm text-muted-foreground">© 2025 Abhijit Fule. All rights reserved.</div>
-              <div className="text-xs text-muted-foreground">Built with v0.dev by Abhijit Fule</div>
+              <div className="text-xs text-muted-foreground">Built by Abhijit Fule</div>
             </div>
 
             <div className="flex items-center gap-4">
               <button
                 onClick={toggleTheme}
-                className="group p-3 rounded-lg border border-border hover:border-muted-foreground/50 transition-all duration-300"
+                className="group p-3 rounded-lg border border-border hover:border-muted-foreground/50 hover:scale-110 hover:shadow-lg transition-all duration-300"
                 aria-label="Toggle theme"
               >
                 {isDark ? (
@@ -470,7 +622,7 @@ export default function Home() {
                   >
                     <path
                       fillRule="evenodd"
-                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1zm7-4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
                       clipRule="evenodd"
                     />
                   </svg>
@@ -483,22 +635,6 @@ export default function Home() {
                     <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                   </svg>
                 )}
-              </button>
-
-              <button className="group p-3 rounded-lg border border-border hover:border-muted-foreground/50 transition-all duration-300">
-                <svg
-                  className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
               </button>
             </div>
           </div>
